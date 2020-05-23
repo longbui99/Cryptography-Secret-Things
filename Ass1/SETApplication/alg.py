@@ -181,7 +181,6 @@ class Algorithms:
                 algLength = x[1]        
 
         listK = []
-
         if len(listKey) == 1:
             data = listKey[0].split(b'=')
             if len(data) == 1:
@@ -211,6 +210,7 @@ class Algorithms:
         while index < leng:
             fillLen = length-len(listKey[index][1])
             if fillLen == 0:
+                index = index+1
                 continue
             elif fillLen > 0:
                 listKey[index][1] = listKey[index][1]+b'l'*fillLen
@@ -296,7 +296,8 @@ class Algorithms:
             return
         # Showing ui to user
         # Get type of algorithms should be use
-        
+
+
         stepTime = startTime = time.time()
         func = self.getFunctionEncodeOrDecode()
         
