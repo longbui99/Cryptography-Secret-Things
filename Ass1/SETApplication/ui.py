@@ -304,7 +304,8 @@ class UI:
         else:
             self.autoVar.set(False)
             self.autoKeyProcess()
-            self.keyOpenBtn.configure(bg='#f04d4d')
+            if self.keyOpenBtn.cget('bg') =='#59ff00':
+                self.keyOpenBtn.configure(bg='#f04d4d')
             self.mainObject[5] = None
             self.AutoKeyBtn.configure(state=tk.DISABLED,cursor="arrow")
             self.DecodeBtn.config(bg="black",fg="white")

@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['set.py', 'alg.py', 'ui.py'],
-             pathex=['E:\\University\\192\\Cryptography and network security\\Assignment\\Ass1\\SETApplication'],
+             pathex=['D:\\Program & Learning\\University\\192\\Cryptography and network security\\Assignment\\Ass1\\SETApplication'],
              binaries=[],
              datas=[],
              hiddenimports=[],

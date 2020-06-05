@@ -57,6 +57,7 @@ class UI:
         self.initCommand()
         self.initHistory()
         self.initProcessingFrame()
+        self.initFistConsole()
         # self.controlProcessingFrame(True)
     
     def initAppFrame(self):
@@ -111,7 +112,7 @@ class UI:
 
 
     def initProcessingFrame(self):
-        tk.Label(self.ProcessingFrame, text="Processing...", bg='white', fg='green').place(x=0,y=0, width="175px")
+        tk.Label(self.ProcessingFrame, text="Queue processing", bg='white', fg='green', font=('Helvetica',12)).place(x=0,y=0, width="175px")
 
         scrollProcessing = tk.Scrollbar(self.ProcessingFrame)
         self.ProcessingList = tk.Listbox(self.ProcessingFrame, yscrollcommand = scrollProcessing.set, relief='flat')
@@ -132,8 +133,6 @@ class UI:
             self.listAlgorithms[x].place(x=2,y=str(paddingY)+"px",width="195px",height="40px")
             paddingY+=40
 
-        # self.DESBtn.place(x=0,y='30px',width="145px",height="40px")
-        # self.AESBtn.place(x=0,y='70px',width="145px",height="40px")
 
     def initMainActiveFrame(self):
         # Encode input
@@ -205,18 +204,6 @@ class UI:
         scrollConsole.place(x="481px", height="95px")
         scrollConsole.config(command =self.listConsole.yview)
         self.labelConsoleActive.place(x="40px",y=0, width="400px")
-
-    # def initHistory(self):
-    #     self.percentageProcess = tk.Frame(self.HistoryFrame,bg="green2",width=0,height="28px")
-    #     # labelHistory = tk.Label(self.HistoryFrame, text="Operational history", font=("Helvetica",10), bg="white")
-    #     scrollHistory = tk.Scrollbar(self.HistoryFrame)
-    #     self.listHistory = tk.Listbox(self.HistoryFrame,yscrollcommand=scrollHistory.set, relief = "flat")
-
-    #     self.percentageProcess.place(x=0,y=0)
-    #     # labelHistory.place(x="200px",y="5px")
-    #     scrollHistory["command"]= self.listHistory.yview
-    #     self.listHistory.place(x=0,y="29px",width="700px", height="120px")
-    #     scrollHistory.place(x="700px",y=0,height="120px")
         
     def bindMouseAlg(self, Option, Obj):
         if Obj.cget("bg") != 'black':
@@ -233,10 +220,11 @@ class UI:
                 Obj.configure(bg="white",fg="black")
 
     def bindMouseActive(self,Option,Obj):
-        if Option:
-            Obj.configure(bg="grey",fg="white")
-        else:
-            Obj.configure(bg="white",fg="black")
+        if Obj.cget('bg') != '#59ff00':
+            if Option:
+                Obj.configure(bg="grey",fg="white")
+            else:
+                Obj.configure(bg="#f04d4d",fg="black")
 
     def initCommand(self):
         # EncodeBtn
@@ -276,10 +264,17 @@ class UI:
         self.saveOpenBtn.bind("<Leave>", lambda x: self.bindMouseActive(False,self.saveOpenBtn))
         # self.ActiveBtn["command"]=lambda:self.ActiveFunction
         
+    def initFistConsole(self):
+        self.listConsole.insert(0,"Input: None")
+        self.listConsole.insert(1,"Key: None")
+        self.listConsole.insert(2,"Save: None")
+        self.listConsole.itemconfig(0,fg='orange')
+        self.listConsole.itemconfig(1,fg='orange')
+        self.listConsole.itemconfig(2,fg='orange')
 
     def displayHistory(self):
         if not self.historyShow:
-            print("OK")
+            # print("OK")
             self.App["height"]="500px"
             self.HistoryFrame.place(x='0px',y='385px')
             self.historyShow = True
@@ -309,6 +304,9 @@ class UI:
         else:
             self.autoVar.set(False)
             self.autoKeyProcess()
+            if self.keyOpenBtn.cget('bg') =='#59ff00':
+                self.keyOpenBtn.configure(bg='#f04d4d')
+            self.mainObject[5] = None
             self.AutoKeyBtn.configure(state=tk.DISABLED,cursor="arrow")
             self.DecodeBtn.config(bg="black",fg="white")
             self.EncodeBtn.config(bg="white",fg="black")
@@ -332,11 +330,21 @@ class UI:
             filetypes=[
     		("All files", "*")])
             else:
-                url=filedialog.askdirectory()
+                url=filedialog.askdirectory() + "/"
         except :
             return
         finally:
             self.mainObject[3] = url if url is not '' else None
+            self.listConsole.delete(0)
+            if url == None or url == '' or url == '/':
+                self.InputOpenBtn.configure(bg='#f04d4d')
+                self.listConsole.insert(0,"Input : None")
+                self.listConsole.itemconfig(0,fg='red')
+            else:
+                self.InputOpenBtn.configure(bg='#59ff00')
+                self.listConsole.insert(0,"Input : " + url + ("" if self.mainObject[2] else "/"))
+                self.listConsole.itemconfig(0,fg='#00b330')
+                
 
     def autoKeyProcess(self):
         self.mainObject[4]= self.autoVar.get()
@@ -358,6 +366,15 @@ class UI:
             return
         finally:
             self.mainObject[5] = url if url is not '' else None
+            self.listConsole.delete(1)
+            if url == None or url == '' or url == '/':
+                self.keyOpenBtn.configure(bg='#f04d4d')
+                self.listConsole.insert(1,"Key : None")
+                self.listConsole.itemconfig(1,fg='red')
+            else:
+                self.keyOpenBtn.configure(bg='#59ff00')
+                self.listConsole.insert(1,"Key : " + url)
+                self.listConsole.itemconfig(1,fg='#00b330')
 
     def folderSavingProcess(self):
         url = None
@@ -366,6 +383,15 @@ class UI:
         except:
             return
         self.mainObject[6] = url if url is not '' else None
+        self.listConsole.delete(2)
+        if url == None or url == ''  or url == '/':
+            self.saveOpenBtn.configure(bg='#f04d4d')
+            self.listConsole.insert(2,"Saving : None")
+            self.listConsole.itemconfig(2,fg='red')
+        else:
+            self.saveOpenBtn.configure(bg='#59ff00')
+            self.listConsole.insert(2,"Saving : " + url)
+            self.listConsole.itemconfig(2,fg='#00b330')
     
     def raiseError(self, tple):
         (index, typeErr) = tple
@@ -454,11 +480,11 @@ class UI:
             return (errSaveFol,c)
         
     def showActiveConsole(self,lst):
-        self.listConsole.delete(0,tk.END)
+        self.listConsole.delete(4,tk.END)
         for index,x in enumerate(lst):
             if x[1]:
                 self.listConsole.insert(tk.END,x[0])
-                self.listConsole.itemconfigure(tk.END,fg='green')
+                self.listConsole.itemconfig(tk.END,fg='green')
             else:
                 self.listConsole.insert(0,x[0])
                 self.listConsole.itemconfig(0,fg='red')
@@ -546,11 +572,11 @@ class UI:
             # List must be reverse
             data = data[::-1]
             for x in data[:-1]:
-                self.ProcessingList.insert(0, "Waiting: " + x[0].split('/')[-1] + " - {:5.2f} MB".format(x[1]/1024))
+                self.ProcessingList.insert(0, "Waiting: " + x[0].split('/')[-1] + " - {:5.2f} MB".format(x[1]/1048576))
                 self.ProcessingList.itemconfigure(0, fg='orange')
                 
             tempText= data[-1][0].split('/')[-1]    
-            self.ProcessingList.insert(0,'Processing : ' +tempText + " - {:5.2f} MB".format(data[-1][1]/1024))
+            self.ProcessingList.insert(0,'Processing : ' +tempText + " - {:5.2f} MB".format(data[-1][1]/1048576))
             self.ProcessingList.itemconfigure(0, fg='green')
 
     def close(self):

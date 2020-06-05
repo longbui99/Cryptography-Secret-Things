@@ -174,12 +174,26 @@ class Algorithms:
         if len(listKey) >1 and not len(listKey) == leng:
             raise ValueError("Number of keys are not same with number of Files");
         
+        algLength = 8
+        # First, we have to know length bytes of key
+        for x in self.keyContraint:
+            if x[0] == self.dataField[0]:
+                algLength = x[1]        
+
         listK = []
+        if len(listKey) == 1:
+            data = listKey[0].split(b'=')
+            if len(data) == 1:
+                listK.append(['all',listKey[0]])
+                self.fillOrTrunKey(listK,algLength)
+                return listK
 
         for i in range(0, len(listKey)):
             temp = []
             listKey[i] = listKey[i].split(b'=')
-            if len(listKey[i]) == 1: continue
+            if len(listKey[i]) == 1:
+                # print(listKey[i],"----",i)
+                continue
             filename = b"=".join(listKey[i][:-1])
             t,t1 = filename,listKey[i][-1]
             listK.append([t,t1])
@@ -187,9 +201,23 @@ class Algorithms:
         if len(listK) == 1:
             if listK[0][0].lower() == "all":
                 listK = [["all",listK[0][1]]]
-        # for index,x in enumerate(listK):
-        #     print(index,",",x[0],",",len(x[1]))
+        self.fillOrTrunKey(listK,algLength)
         return listK
+
+    def fillOrTrunKey(self, listKey, length):
+        index = 0
+        leng = len(listKey)
+        while index < leng:
+            fillLen = length-len(listKey[index][1])
+            if fillLen == 0:
+                index = index+1
+                continue
+            elif fillLen > 0:
+                listKey[index][1] = listKey[index][1]+b'l'*fillLen
+            else:
+                listKey[index][1] = listKey[index][1][:length]
+            index = index+1
+            
 
     def findKeyValue(self,url,crypto,listKey):
         fileName = url.split('/')[-1]
@@ -207,6 +235,7 @@ class Algorithms:
 
     def getListInput(self,typeInput):
         listInput =  None
+        # print(self.dataField[3])
         if typeInput:
             listInput = [self.dataField[3]]
         else:
@@ -221,7 +250,7 @@ class Algorithms:
     def nameFileAnalyst(self,url, Check):
         filenameFully = url.split('/')[-1]
         if Check:
-            filenameFully=filenameFully+".bat"
+            filenameFully=filenameFully+".bin"
         else:
             filenameFully = filenameFully.split('.')
             fileName = ".".join(filenameFully[:-2])
@@ -267,11 +296,12 @@ class Algorithms:
             return
         # Showing ui to user
         # Get type of algorithms should be use
-        
+
+
         stepTime = startTime = time.time()
         func = self.getFunctionEncodeOrDecode()
         
-        leng = len(self.dataField[3])+1
+        leng = len(self.dataField[3])
         lengK = len(listKey)
         lengI = len(listInput)
         self.ui.showFileandKey((lengI,lengK),True, str(0)+"/")
@@ -300,6 +330,7 @@ class Algorithms:
                 self.ui.addHistory((crypto,False,url,datetime.datetime.now().strftime("%H:%M:%S>>")))
                 continue
             # print(key,",",len(key))
+            # print(key)
             try:
                 (result,hashCompare) = func(data,key,nonce,crypto,prevHash)
             except ValueError as e:
